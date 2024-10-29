@@ -3,7 +3,7 @@ import numpy as np
 
 #size of layer =  no of nodes in each layer (input+output)
 #if there are n layers in the network, there will be n - 1 activation functions becauise output layer does not require an activation function
-# we have to make it feedforward
+
 class activationFunction:
     def logisticFunction(x):
         f = (1 + (math.e ** -x)) ** -1
@@ -17,9 +17,14 @@ class activationFunction:
         f = math.tanh(x)
         return f
 
+    def leakyReLU(x):
+        alpha=0.01
+        f = np.maximum(x, x * alpha)
+        return f
+
     ''' extra functions:
-        - maxout
-        - if possible: elu/ leaky ReLu
+        - maxout (needs weights and biases though)
+        - if possible: elu
     '''
 class ArtificialNeuralNetwork:
     def __init__(self, layerSize, activationFunction):
@@ -29,17 +34,18 @@ class ArtificialNeuralNetwork:
 
         self.layerSize = layerSize
         self.activationFunction = activationFunction
-        self.weights = [np.random((self.layerSize[i], self.layerSize[i+1])) for i in range(len(self.layerSize) - 1)]
-        self.biases = [np.random.randn(1, size) for size in layerSize[1:]]
+
+        self.weights = [np.random.randn(self.layer_sizes[i], self.layerSize[i + 1]) for i in range(len(self.layerSize) - 1)]
+        self.biases = [np.random.randn(1, size) for size in self.layerSize[1:]]
 
 # x = input data
-    def forward_propagation(self, x):
+    def forwardPropagation(self, x):
         output = x
         for i in range(len(self.weights)):
             matrix_total = np.dot(output, self.weights[i]) + self.biases[i]
             output = self.activation_functions[i](matrix_total)
         return output
 
-'''
-hello testing testing test
-'''
+
+
+
