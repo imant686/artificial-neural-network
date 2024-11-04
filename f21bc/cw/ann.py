@@ -45,3 +45,12 @@ class ArtificialNeuralNetwork:
             matrix_total = np.dot(output, self.weights[i]) + self.biases[i]
             output = self.activation_functions[i](matrix_total)
         return output
+
+# Example usage
+layer_sizes = [2, 3, 1]
+activation_functions = [ActivationFunction.logisticFunction, ActivationFunction.hyperbolicFunction]
+
+network = ArtificialNeuralNetwork(layer_sizes, activation_functions)
+input_data = np.array([[0.5, -0.2]])
+output = network.forwardPropagation(input_data)
+print(output)
