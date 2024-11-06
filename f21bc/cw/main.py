@@ -32,18 +32,18 @@ class ReLU(Activation):
         return np.where(x > 0, 1, 0)
 
 class leakyReLU(Activation):
-    def evaluate(self, x):
-        return np.maximum(0, x)
+    def evaluate(self, x, alpha=0.01):
+       return np.where(x > 0, x, alpha * x)
 
-    def derivative(self, x):
-        return np.where(x > 0, 1, 0)
+    def derivative(self, x, alpha=0.01):
+        return np.where(x > 0, 1, alpha)
 
 class Elu(Activation):
-    def evaluate(self, x):
-        return np.maximum(0, x)
+    def evaluate(self, x, alpha=1.0):
+        return np.where(x > 0, x, alpha * (np.exp(x) - 1))
 
-    def derivative(self, x):
-        return np.where(x > 0, 1, 0)
+    def derivative(self, x, alpha=0.01):
+       return np.where(x > 0, 1, alpha * np.exp(x))
 
 class Layer:
     def __init__(self, nodes, inputs, activationFunction):
@@ -80,3 +80,36 @@ input_data = np.array([[0.5, -0.2]])
 
 output = network.forward(input_data)
 print("Network output:", output)
+
+class Particle:
+    def __init__(self, vectorSize, ):
+            self.position = np.random.rand(vectorSize)
+            self.velocity = np.random.rand(vectorSize)
+            self.bestPosition = np.zeros(vectorSize)
+            self.best # fitness
+            self.bestErr
+
+    def updateVelocity (self, bestPosition):
+
+            cognitiveVelocity = c1*r1*(self.pos_best_i[i]-self.position_i[i])
+            vel_social=c2*r2*(pos_best_g[i]-self.position_i[i])
+            self.velocity_i[i]=w*self.velocity_i[i]+vel_cognitive+vel_social
+'''
+Update velocity:
+    inertia weight
+    social weight
+    cognitive weight
+
+    to get:
+        cognitive
+        social
+        self.velocity_i[i]=w*self.velocity_i[i]+vel_cognitive+vel_social
+
+Update position:
+'''
+
+#class PSO:
+    #def
+    #informants go in here
+    # global values go in
+    # fitness funciton goes in

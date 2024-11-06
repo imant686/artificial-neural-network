@@ -48,9 +48,9 @@ class ArtificialNeuralNetwork:
 
 # Example usage
 layer_sizes = [2, 3, 1]
-activation_functions = [ActivationFunction.logisticFunction, ActivationFunction.hyperbolicFunction]
+#activation_functions = [ActivationFunction.logisticFunction, ActivationFunction.hyperbolicFunction]
 
-network = ArtificialNeuralNetwork(layer_sizes, activation_functions)
+#network = ArtificialNeuralNetwork(layer_sizes, activation_functions)
 input_data = np.array([[0.5, -0.2]])
-output = network.forwardPropagation(input_data)
-print(output)
+#output = network.forwardPropagation(input_data)
+#print(output)
