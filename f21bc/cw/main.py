@@ -113,3 +113,4 @@ Update position:
     #informants go in here
     # global values go in
     # fitness funciton goes in
+    #testing
