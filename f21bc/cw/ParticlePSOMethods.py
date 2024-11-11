@@ -18,7 +18,7 @@ class Particle:
         self.position += self.velocity
 
 class PSO:
-    def __init__(self, n_particles, dimensions, fitness_function, n_iterations=100):
+    def __init__(self, n_particles, dimensions, fitness_function, n_iterations=10):
         self.n_particles = n_particles
         self.dimensions = dimensions
         self.fitness_function = fitness_function
