@@ -9,8 +9,7 @@ class Activation:
 
 class Logistic(Activation):
     def evaluate(self, x):
-        f = 1 / (1 + np.exp(-x))
-        return f
+        return 1 / (1 + np.exp(-x))
 
     def derivative(self, x):
         f = self.evaluate(x)
@@ -31,32 +30,23 @@ class ReLU(Activation):
     def derivative(self, x):
         return np.where(x > 0, 1, 0)
 
-class leakyReLU(Activation):
+class LeakyReLU(Activation):
     def evaluate(self, x, alpha=0.01):
-       return np.where(x > 0, x, alpha * x)
+        return np.where(x > 0, x, alpha * x)
 
     def derivative(self, x, alpha=0.01):
         return np.where(x > 0, 1, alpha)
 
-class Elu(Activation):
-    def evaluate(self, x, alpha=1.0):
-        return np.where(x > 0, x, alpha * (np.exp(x) - 1))
-
-    def derivative(self, x, alpha=0.01):
-       return np.where(x > 0, 1, alpha * np.exp(x))
-
 class Layer:
-    def __init__(self, nodes, inputs, activationFunction):
+    def __init__(self, nodes, inputs, activation_function):
         self.nodes = nodes
         self.weights = np.random.randn(inputs, nodes) * 0.1
         self.biases = np.zeros((1, nodes))
-        self.activationFunction = activationFunction
+        self.activation_function = activation_function
 
-    def forward(self, input):
-        self.input = input
-        z = np.dot(input, self.weights) + self.biases
-        self.output = self.activationFunction.evaluate(z)
-        return self.output
+    def forward(self, input_data):
+        z = input_data @ self.weights + self.biases
+        return self.activation_function.evaluate(z)
 
 class Network:
     def __init__(self):

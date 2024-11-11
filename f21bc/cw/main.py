@@ -1,116 +1,67 @@
 import numpy as np
+from ANNMethods import Network, Layer, Logistic, Tanh, ReLU  # Import activation functions, Network, and Layer
+from ParticlePSOMethods import PSO
 
-class Activation:
-    def evaluate(self, x):
-        pass
+# Step 1: Define the ANN architecture
+def build_ann():
+    network = Network()
+    network.append(Layer(nodes=3, inputs=2, activation_function=Logistic()))
+    network.append(Layer(nodes=1, inputs=3, activation_function=Tanh()))
+    return network
 
-    def derivative(self, x):
-        pass
+# Step 2: Define the fitness function for PSO
+def fitness_function(weights_biases):
+    # Reshape weights_biases into the ANN's weight and bias structure
+    network = build_ann()
+    weight_idx = 0
 
-class Logistic(Activation):
-    def evaluate(self, x):
-        f = 1 / (1 + np.exp(-x))
-        return f
+    for layer in network.layers:
+        num_weights = layer.weights.size
+        layer.weights = weights_biases[weight_idx:weight_idx + num_weights].reshape(layer.weights.shape)
+        weight_idx += num_weights
+        num_biases = layer.biases.size
+        layer.biases = weights_biases[weight_idx:weight_idx + num_biases].reshape(layer.biases.shape)
+        weight_idx += num_biases
 
-    def derivative(self, x):
-        f = self.evaluate(x)
-        return f * (1 - f)
+    # Example input and target output for testing
+    input_data = np.array([[0.5, -0.2]])
+    target_output = np.array([[0.4]])  # Adjust based on your specific regression task
 
-class Tanh(Activation):
-    def evaluate(self, x):
-        return np.tanh(x)
+    # Calculate network output and error
+    network_output = network.forward(input_data)
+    error = np.mean((network_output - target_output) ** 2)  # Mean Squared Error (MSE)
 
-    def derivative(self, x):
-        f = np.tanh(x)
-        return 1 - f ** 2
+    return error
 
-class ReLU(Activation):
-    def evaluate(self, x):
-        return np.maximum(0, x)
+# Step 3: Determine the dimensions needed for PSO based on the ANN structure
+def get_dimensions(network):
+    total_params = sum(layer.weights.size + layer.biases.size for layer in network.layers)
+    return total_params
 
-    def derivative(self, x):
-        return np.where(x > 0, 1, 0)
+# Step 4: Run PSO
+if __name__ == "__main__":
+    ann_network = build_ann()
+    dimensions = get_dimensions(ann_network)  # Number of parameters to optimize
+    pso = PSO(n_particles=20, dimensions=dimensions, fitness_function=fitness_function, n_iterations=100)
 
-class leakyReLU(Activation):
-    def evaluate(self, x, alpha=0.01):
-       return np.where(x > 0, x, alpha * x)
+    # Run PSO to find optimal weights and biases
+    best_position, best_error = pso.optimize()
 
-    def derivative(self, x, alpha=0.01):
-        return np.where(x > 0, 1, alpha)
+    print("Best Position:", best_position)
+    print("Best Error:", best_error)
 
-class Elu(Activation):
-    def evaluate(self, x, alpha=1.0):
-        return np.where(x > 0, x, alpha * (np.exp(x) - 1))
+    # Test the optimized ANN
+    optimized_ann = build_ann()
+    weight_idx = 0
 
-    def derivative(self, x, alpha=0.01):
-       return np.where(x > 0, 1, alpha * np.exp(x))
+    for layer in optimized_ann.layers:
+        num_weights = layer.weights.size
+        layer.weights = best_position[weight_idx:weight_idx + num_weights].reshape(layer.weights.shape)
+        weight_idx += num_weights
+        num_biases = layer.biases.size
+        layer.biases = best_position[weight_idx:weight_idx + num_biases].reshape(layer.biases.shape)
+        weight_idx += num_biases
 
-class Layer:
-    def __init__(self, nodes, inputs, activationFunction):
-        self.nodes = nodes
-        self.weights = np.random.randn(inputs, nodes) * 0.1
-        self.biases = np.zeros((1, nodes))
-        self.activationFunction = activationFunction
-
-    def forward(self, input):
-        self.input = input
-        z = np.dot(input, self.weights) + self.biases
-        self.output = self.activationFunction.evaluate(z)
-        return self.output
-
-class Network:
-    def __init__(self):
-        self.layers = []
-
-    def append(self, layer):
-        self.layers.append(layer)
-
-    def forward(self, data_in):
-        out = data_in
-        for layer in self.layers:
-            out = layer.forward(out)
-        return out
-
-network = Network()
-
-network.append(Layer(nodes=3, inputs=2, activationFunction=Logistic()))
-network.append(Layer(nodes=1, inputs=3, activationFunction=Tanh()))
-
-input_data = np.array([[0.5, -0.2]])
-
-output = network.forward(input_data)
-print("Network output:", output)
-
-class Particle:
-    def __init__(self, vectorSize, ):
-            self.position = np.random.rand(vectorSize)
-            self.velocity = np.random.rand(vectorSize)
-            self.bestPosition = np.zeros(vectorSize)
-            self.best # fitness
-            self.bestErr
-
-    def updateVelocity (self, bestPosition):
-
-            cognitiveVelocity = c1*r1*(self.pos_best_i[i]-self.position_i[i])
-            vel_social=c2*r2*(pos_best_g[i]-self.position_i[i])
-            self.velocity_i[i]=w*self.velocity_i[i]+vel_cognitive+vel_social
-'''
-Update velocity:
-    inertia weight
-    social weight
-    cognitive weight
-
-    to get:
-        cognitive
-        social
-        self.velocity_i[i]=w*self.velocity_i[i]+vel_cognitive+vel_social
-
-Update position:
-'''
-
-#class PSO:
-    #def
-    #informants go in here
-    # global values go in
-    # fitness funciton goes in
-    #testing
+    # Print the optimized output for test input data
+    optimized_output = optimized_ann.forward(np.array([[0.5, -0.2]]))
+    print("Optimized Network Output:", optimized_output)
