@@ -1,47 +1,51 @@
 import numpy as np
+from ann import ArtificialNeuralNetwork
 
+# Initialising the particle object
 class Particle:
-    def __init__(self, dimensions):
-        self.position = np.random.uniform(-1, 1, dimensions)
-        self.velocity = np.random.uniform(-0.1, 0.1, dimensions)
-        self.best_position = self.position.copy()
-        self.best_error = float('inf')
-        self.current_error = float('inf')
+    def __init__(self,vectorSize):
+            
+            self.particlePosition=np.random.rand(vectorSize) #initial position of the particle
+            self.particleVelocity=np.random.rand(vectorSize) #initial velocity of the particle
+        
+            self.bestPosition=np.copy(self.particlePosition)
+            self.informants=[]   # array to store all the informants of the particle
 
-    def update_velocity(self, global_best_position, w=0.5, c1=1.5, c2=1.5):
-        inertia = w * self.velocity
-        cognitive = c1 * np.random.rand() * (self.best_position - self.position)
-        social = c2 * np.random.rand() * (global_best_position - self.position)
-        self.velocity = inertia + cognitive + social
+# Code to convert the particle to an ANN
+    def particleToAnn(particle, annLayers, activationFunctions):
+        
+        neuralNetwork = ArtificialNeuralNetwork(layerSize=annLayers, activationFunction=activationFunctions)
+        weightBiasIndexCount = 0
+        
+        for i in range(len(annLayers) - 1):
+            # input for each neuron layer
+            prevValue = annLayers[i]
+            
+            # output for each neuron layer
+            nextValue = annLayers[i + 1]
+            
+            # mutliplying the layer counts
+            weightRange = prevValue * nextValue
+            
+            # calculate weights
+            weight = particle.particlePosition[weightBiasIndexCount:weightBiasIndexCount + weightRange].reshape((prevValue, nextValue))
+            
+            weightBiasIndexCount += weightRange
+            biases = particle.particlePosition[weightBiasIndexCount:weightBiasIndexCount + nextValue].reshape((1, nextValue))
+            weightBiasIndexCount += nextValue
+            
+            # setting the activationFunctions for the particle's ANN
+            activation = activationFunctions[i]
+            
+            # setting the weights and biases for the particle's ANN
+            neuralNetwork.weights[i] = weight
+            neuralNetwork.biases[i] = biases
+        return neuralNetwork
 
-    def update_position(self):
-        self.position += self.velocity
+    def assessFitness(particle, dataset, annLayers, activationFunctions, loss_function):
+        x, y = dataset
+        ann = particleToAnn(particle, annLayers, activationFunctions)  # converting the ann to a particle
+        predictions = ann.forwardPropagation(x)  # perform forward propagation 
+        loss = loss_function.evaluate(predictions, y.reshape(-1, 1))  # calculate the loss
 
-class PSO:
-    def __init__(self, n_particles, dimensions, fitness_function, n_iterations=10):
-        self.n_particles = n_particles
-        self.dimensions = dimensions
-        self.fitness_function = fitness_function
-        self.n_iterations = n_iterations
-        self.particles = [Particle(dimensions) for _ in range(n_particles)]
-        self.global_best_position = np.random.uniform(-1, 1, dimensions)
-        self.global_best_error = float('inf')
-
-    def optimize(self):
-        for _ in range(self.n_iterations):
-            for particle in self.particles:
-                particle.current_error = self.fitness_function(particle.position)
-                if particle.current_error < particle.best_error:
-                    particle.best_error = particle.current_error
-                    particle.best_position = particle.position.copy()
-
-                if particle.current_error < self.global_best_error:
-                    self.global_best_error = particle.current_error
-                    self.global_best_position = particle.position.copy()
-
-            for particle in self.particles:
-                particle.update_velocity(self.global_best_position)
-                particle.update_position()
-
-        return self.global_best_position, self.global_best_error
-
+        return loss
