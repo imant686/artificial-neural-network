@@ -1,2 +1,4 @@
-# F21BC
-F21BC Coursework
+# F20BC
+F20BC Coursework
+
+Biologically-Inspired Computation Coursework
